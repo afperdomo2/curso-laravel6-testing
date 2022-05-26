@@ -45,7 +45,7 @@ class PostControllerTest extends TestCase
 
         $response->assertJsonStructure(['id', 'title', 'created_at', 'updated_at'])
             ->assertJson(['title' => $post->title])
-            ->assertStatus(200); // 200 = Accepted
+            ->assertStatus(200); // 200 = OK
     }
 
     public function test_404_show()
@@ -67,8 +67,19 @@ class PostControllerTest extends TestCase
 
         $response->assertJsonStructure(['id', 'title', 'created_at', 'updated_at'])
             ->assertJson(['title' => $newTitle])
-            ->assertStatus(200);
+            ->assertStatus(200); // 200 = OK
 
         $this->assertDatabaseHas('posts', ['title' => $newTitle]);
+    }
+
+    public function test_delete()
+    {
+        $post = factory(Post::class)->create();
+
+        $response = $this->json('DELETE', "/api/posts/$post->id");
+
+        $response->assertSee(null)->assertStatus(204); // 204 = No content
+
+        $this->assertDatabaseMissing('posts', ['id' => $post->id]);
     }
 }
